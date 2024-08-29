@@ -39,20 +39,16 @@ std::condition_variable cvComments;
 
 void activateAIServerListener() {
     try {
-        // use shared_ptr to manage the lifetime of the AI server
-        serverSocket = std::make_shared<tcp::socket>(ioContext);
+        serverSocket = std::make_shared<tcp::socket>(ioContext); // use shared_ptr to manage the lifetime of the AI server
         endPoints = resolver.resolve("127.0.0.1", "62131");
         auto socket = std::make_shared<tcp::socket>(ioContext);
         auto sizeBuffer = std::make_shared<std::array<char, sizeof(uint32_t)>>();
-
-        // Connect and establish mutex
-        std::lock_guard<std::mutex> lockPost(mtxPosts);
+        std::lock_guard<std::mutex> lockPost(mtxPosts); // Connect and establish mutex
         std::lock_guard<std::mutex> lockPost2(mtxComments);
         asio::connect(*serverSocket, endPoints);
-
-        // Async read the size of the response
-        asio::async_read(*serverSocket, asio::buffer(*sizeBuffer),
-            [sizeBuffer, socket](asio::error_code ec, std::size_t /*len*/) {
+        
+        asio::async_read(*serverSocket, asio::buffer(*sizeBuffer), // Async read the size of the response
+            [sizeBuffer, socket](asio::error_code ec, std::size_t) {
                 if (!ec) {
                     // Assign size of the content to size 
                     uint32_t size;
